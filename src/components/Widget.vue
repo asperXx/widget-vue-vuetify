@@ -69,7 +69,7 @@ export default {
       value: 1,
       idx: 0,
       overlay: false,
-      widthWindow: 1024
+      widthWindow: 0
     };
   },
   created() {
@@ -96,12 +96,14 @@ export default {
     // this.widthWindow = window.innerWidth;
   },
     showCards(index) {
-      if (this.widthWindow > 500) {
-      if ((this.idx < index) && (this.idx > index - 5)) {
+      if (this.widthWindow > 600) {
+      if ((this.idx <= index -2) && (this.idx > index - 4)) {
         return true
       }
-      } else {
-        return
+      } else if (this.widthWindow < 600) {
+      if ((this.idx < index -2) && (this.idx > index - 2)){
+        return true
+      }
       }
     }
   },
