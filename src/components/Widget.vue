@@ -69,7 +69,7 @@ export default {
       value: 1,
       idx: 0,
       overlay: false,
-      widthWindow: 0
+      widthWindow: 1024
     };
   },
   created() {
@@ -92,16 +92,15 @@ export default {
       .then((response) => (this.currencyValues = response.data.rates));
     },
      updateWidth() {
-    console.log(window.innerWidth)
-    // this.widthWindow = window.innerWidth;
+    this.widthWindow = window.innerWidth;
   },
     showCards(index) {
       if (this.widthWindow > 600) {
-      if ((this.idx <= index -2) && (this.idx > index - 4)) {
+      if ((this.idx <= index) && (this.idx >= index - 3)) {
         return true
       }
       } else if (this.widthWindow < 600) {
-      if ((this.idx < index -2) && (this.idx > index - 2)){
+      if ((this.idx <= index) && (this.idx >= index -1)){
         return true
       }
       }
