@@ -1,59 +1,78 @@
 <template>
-<v-app>
-  <v-card class="widget">
-    <div class="header__title">Курс {{ currency }} сегодня</div>
-    <div class="container">
-      <v-tabs
-        background-color="#FFE782"
-        show-arrows
-        color="#2B2D33"
-        v-model="model"
-      >
-        <v-tabs-slider color="white"></v-tabs-slider>
-        <v-tab
-          v-for="(card,id) in rates"
-          :key="id"
-          :href="'#' + id"
-          active-class="white tab__active"
-          @change="currency = id"
-          @click="setCurrency(); overlay = !overlay"
-          class="tabs"
-        >{{id}}</v-tab>
-        
-      </v-tabs>
-      <div class="inputValueContainer">
-        
-        <v-text-field color="#D9D9D9" reverse v-model="value" class="inputValue"></v-text-field>
-        <span class="mt-6 ml-2 currency__span">{{ currency }}</span>
+  <v-app>
+    <v-card class="widget">
+      <div class="header__title">Курс {{ currency }} сегодня</div>
+      <div class="container">
+        <v-tabs
+          background-color="#FFE782"
+          show-arrows
+          color="#2B2D33"
+          v-model="model"
+        >
+          <v-tabs-slider color="white"></v-tabs-slider>
+          <v-tab
+            v-for="(card, id) in rates"
+            :key="id"
+            :href="'#' + id"
+            active-class="white tab__active"
+            @change="currency = id"
+            @click="
+              setCurrency();
+              overlay = !overlay;
+            "
+            class="tabs"
+            >{{ id }}</v-tab
+          >
+        </v-tabs>
+        <div class="inputValueContainer">
+          <v-text-field
+            color="#D9D9D9"
+            reverse
+            v-model="value"
+            class="inputValue"
+          ></v-text-field>
+          <span class="mt-6 ml-2 currency__span">{{ currency }}</span>
+        </div>
+        <v-tabs-items v-model="model" class="container__cards">
+          <v-tab-item v-for="(card, id) in rates" :key="id" :value="id">
+            <v-row class="pl-4 pr-4">
+              <v-col
+                cols="12"
+                xs="12"
+                md="6"
+                v-for="(card, id, index) in currencyValues"
+                :key="id"
+                v-show="showCards(index)"
+              >
+                <v-card round class="course_card mb-0">
+                  <div>
+                    <span class="value_currency__span">{{ value }}</span>
+                    <span class="currency__span"> {{ currency }} = </span>
+                  </div>
+                  <div>
+                    <span class="calc_currency__span">
+                      {{ (value * card).toFixed(2) }} </span
+                    ><span class="value_currency__span">{{ id }}</span>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-tab-item>
+        </v-tabs-items>
+        <div class="paginator">
+          <v-btn color="white" :disabled="idx == 0" @click="idx -= 4">
+            <v-icon left>mdi-chevron-left</v-icon>Назад
+          </v-btn>
+          <v-btn color="white" :disabled="idx == 28" @click="idx += 4">
+            Далее
+            <v-icon right>mdi-chevron-right</v-icon>
+          </v-btn>
+        </div>
       </div>
-      <v-tabs-items v-model="model" class="container__cards">
-        <v-tab-item v-for="(card,id) in rates" :key="id" :value="id">
-          <v-row class="pl-4 pr-4">
-            <v-col cols="12" xs="12" md="6" v-for="(card,id,index) in currencyValues" :key="id" v-show="showCards(index)">
-              <v-card round class="course_card mb-0">
-                <span class="value_currency__span">{{value}}</span>
-                <span class="currency__span"> {{ currency }} = </span>
-                <span class="calc_currency__span"> {{(value*card).toFixed(2)}} {{id}}</span>
-              </v-card>
-            </v-col>
-            
-          </v-row>
-        </v-tab-item>
-      </v-tabs-items>
-      <div class="paginator">
-        <v-btn color="white" :disabled="idx==0" @click="idx-=4">
-          <v-icon left>mdi-chevron-left</v-icon>Назад
-        </v-btn>
-        <v-btn color="white" :disabled="idx==28" @click="idx+=4">
-          Далее
-          <v-icon right>mdi-chevron-right</v-icon>
-        </v-btn>
-      </div>
-    </div>
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
-  </v-card>
+      <v-overlay :value="overlay">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </v-card>
   </v-app>
 </template>
 
@@ -69,53 +88,52 @@ export default {
       value: 1,
       idx: 0,
       overlay: false,
-      widthWindow: 1024
+      widthWindow: 1024,
     };
   },
   created() {
-    window.addEventListener('resize', this.updateWidth);
+    window.addEventListener("resize", this.updateWidth);
   },
   mounted() {
     axios
       .get("https://api.exchangeratesapi.io/latest")
       .then((response) => (this.rates = response.data.rates));
 
-     axios
+    axios
       .get("https://api.exchangeratesapi.io/latest?base=" + this.currency)
       .then((response) => (this.currencyValues = response.data.rates));
-
   },
   methods: {
     setCurrency() {
       axios
-      .get("https://api.exchangeratesapi.io/latest?base=" + this.currency)
-      .then((response) => (this.currencyValues = response.data.rates));
+        .get("https://api.exchangeratesapi.io/latest?base=" + this.currency)
+        .then((response) => (this.currencyValues = response.data.rates));
     },
-     updateWidth() {
-    this.widthWindow = window.innerWidth;
-  },
+    updateWidth() {
+      this.widthWindow = window.innerWidth;
+    },
     showCards(index) {
       if (this.widthWindow > 600) {
-      if ((this.idx <= index) && (this.idx >= index - 3)) {
-        return true
-      }
+        if (this.idx <= index && this.idx >= index - 3) {
+          return true;
+        }
       } else if (this.widthWindow < 600) {
-      if ((this.idx <= index) && (this.idx >= index -1)){
-        return true
+        if (this.idx <= index && this.idx >= index - 1) {
+          return true;
+        }
       }
-      }
-    }
+    },
   },
   watch: {
-      overlay (val) {
-        val && setTimeout(() => {
-          this.overlay = false
-        }, 1000)
-      },
+    overlay(val) {
+      val &&
+        setTimeout(() => {
+          this.overlay = false;
+        }, 1000);
     },
+  },
 };
 </script>
-
 
 <style scoped lang="scss">
 .widget {
@@ -136,7 +154,7 @@ export default {
 }
 .tabs {
   font-weight: 600;
-  color: #CCAE68;
+  color: #ccae68;
 }
 .tab__active {
   border-top-left-radius: 10px;
@@ -159,8 +177,11 @@ export default {
   align-self: flex-end;
 }
 .course_card {
+  display: flex;
+  flex-direction: column;
   height: 138px;
   padding: 10px 25px;
+  justify-content: space-between;
 }
 
 .paginator {
@@ -178,7 +199,7 @@ export default {
 }
 .value_currency__span {
   font-weight: 300;
-  color: #2B2D33;
+  color: #2b2d33;
   font-size: 18pt;
   letter-spacing: 0.02;
 }
@@ -189,5 +210,11 @@ export default {
   &__cards {
     margin-top: -10px;
   }
+}
+.calc_currency__span {
+  font-weight: 300;
+  color: #2b2d33;
+  font-size: 44pt;
+  letter-spacing: 0.02;
 }
 </style>
